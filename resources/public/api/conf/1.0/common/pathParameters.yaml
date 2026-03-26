@@ -30,5 +30,5 @@ components:
       schema:
         type: string
         pattern: ^[0-9]{10}$
-        example: 4564564564
+        example: "4564564564"
       required: true
