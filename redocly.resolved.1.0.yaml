@@ -1,0 +1,2480 @@
+openapi: 3.0.3
+info:
+  version: '1.0'
+  title: Individuals Partner Income (MTD) [test only]
+  description: |
+
+    The following endpoints are stateful in the Sandbox:
+      * List All Partner Income Submissions    
+      * Create or Amend Partner Income
+      * Retrieve Partner Income
+      * Delete Partner Income
+
+    # Send fraud prevention data
+    HMRC monitors transactions to help protect your customers' confidential data from criminals and fraudsters. 
+
+    <div class="govuk-warning-text warning-icon-fix">
+      <span class="govuk-warning-text__icon warning-icon-ui-fix" aria-hidden="true">!</span>
+      <strong class="govuk-warning-text__text">
+        <span class="govuk-warning-text__assistive">Warning</span>
+        You are required by law to submit header data for this API. This includes all associated APIs and endpoints.
+      </strong>
+    </div>
+
+    [Check the data you need to send](/guides/fraud-prevention/). You can also use the [Test API](/api-documentation/docs/api/service/txm-fph-validator-api/1.0) during initial development and as part of your quality assurance checks.
+
+    # Mapping APIs to Self Assessment tax return forms
+    Some parameters in this API map to box numbers in one or more Self Assessment tax return forms. To learn more and to download this mapping information as a CSV file, go to [income-tax-mtd-changelog/mapping](https://github.com/hmrc/income-tax-mtd-changelog?tab=readme-ov-file#mapping-apis-to-self-assessment-tax-return-forms) on GitHub.
+
+    # Changelog
+    You can find the changelog in the [income-tax-mtd-changelog](https://github.com/hmrc/income-tax-mtd-changelog/#readme) on GitHub.
+
+    # Support
+
+    * Direct reports of bugs or errors in Production or Sandbox code, or queries about HMRC business functionality (such as how a specific field is used by HMRC or why it is needed) to the [Software Development Support Team (SDST)](https://developer.service.hmrc.gov.uk/developer/support).
+    * Send queries or feedback related to the design of the APIs (including recommended changes) using the [income-tax-mtd-changelog](https://github.com/hmrc/income-tax-mtd-changelog/issues) GitHub page.
+    * <a href="/contact/report-technical-problem?newTab=true&service=api-documentation-frontend" target="_blank">Is this page not working properly? (opens in new tab)</a>
+servers:
+  - url: https://test-api.service.hmrc.gov.uk
+    description: Sandbox
+  - url: https://api.service.hmrc.gov.uk
+    description: Production
+paths:
+  /individuals/partner-income/{nino}/{taxYear}/partnership:
+    get:
+      security:
+        - User-Restricted:
+            - read:self-assessment
+      summary: List All Partner Income Submissions [test only]
+      description: |
+        This endpoint enables you to retrieve a list of all partner income submissions. A National Insurance number and tax year must be provided.
+
+        ### Test data
+        Scenario simulation using Gov-Test-Scenario headers is only available in the sandbox environment.    
+
+        | Header Value (Gov-Test-Scenario) | Scenario                                       |
+        |----------------------------------|------------------------------------------------|
+        | N/A - DEFAULT                    | Simulates success response.                    |
+        | NOT_FOUND                        | Simulates the scenario where no data is found. |
+        | STATEFUL                         | Performs a stateful list.                      |
+      parameters:
+        - name: nino
+          in: path
+          description: |
+            National Insurance number, in the format `AA999999A`
+          schema: &ref_6
+            type: string
+            example: TC663795B
+          required: true
+        - name: taxYear
+          in: path
+          description: |
+            The tax year to which the data applies. The start year and end year must not span two tax years.
+            The minimum tax year is 2026-27. No gaps are allowed, for example, 2026-28 is not valid.
+          schema: &ref_7
+            type: string
+            example: 2026-27
+          required: true
+        - name: Accept
+          in: header
+          description: |
+            Specifies the response format and the version of the API to be used.
+          schema: &ref_8
+            type: string
+            enum:
+              - application/vnd.hmrc.1.0+json
+          required: true
+        - name: Authorization
+          in: header
+          description: |
+            An OAuth 2.0 Bearer Token with the *read:self-assessment* scope.
+          schema: &ref_16
+            type: string
+            example: Bearer bb7fed3fe10dd235a2ccda3d50fb
+          required: true
+        - name: Gov-Test-Scenario
+          in: header
+          description: |
+            Only in sandbox environment. See Test Data table for all header values.
+          schema: &ref_9
+            type: string
+          required: false
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: &ref_0
+                type: string
+                example: c75f40a6-a3df-4429-a697-471eeec46435
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: &ref_1
+                type: string
+                example: Sun, 01 Jan 2023 23:59:59 GMT
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: &ref_2
+                type: string
+                example: Sun, 02 Jul 2023 23:59:59 GMT
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: &ref_3
+                type: string
+                example: https://developer.service.hmrc.gov.uk/api-documentation/docs/api/service/individuals-partner-income-api
+              required: false
+          content:
+            application/json:
+              schema:
+                $schema: http://json-schema.org/draft-04/schema#
+                type: object
+                properties:
+                  partnerIncomeSubmissions:
+                    type: array
+                    description: An array containing details of all partner income submissions.
+                    minItems: 1
+                    items:
+                      type: object
+                      properties:
+                        partnershipUtr:
+                          description: A Unique Taxpayer Reference (UTR) for the partnership. If you are a partner in a foreign partnership, you will not have a partnership reference, so submit your personal UTR.
+                          type: string
+                          example: '4564564564'
+                          pattern: ^[0-9]{10}$
+                        partnershipName:
+                          description: The name of the partnership.
+                          type: string
+                          example: ABC Partnership
+                          pattern: ^.{1,105}$
+                      required:
+                        - partnershipUtr
+                        - partnershipName
+                      additionalProperties: false
+                required:
+                  - partnerIncomeSubmissions
+                additionalProperties: false
+              example:
+                partnerIncomeSubmissions:
+                  - partnershipUtr: '4564564564'
+                    partnershipName: ABC Partnership
+        '400':
+          description: Bad request
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: *ref_1
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: *ref_2
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: *ref_3
+              required: false
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: &ref_4
+                  code:
+                    description: The error code
+                    type: string
+                  message:
+                    description: The error message
+                    type: string
+                required: &ref_5
+                  - code
+              examples:
+                FORMAT_NINO:
+                  description: The format of the supplied NINO field is not valid.
+                  value: &ref_10
+                    code: FORMAT_NINO
+                    message: The provided NINO is invalid
+                FORMAT_TAX_YEAR:
+                  description: The format of the supplied tax year field is not valid.
+                  value: &ref_11
+                    code: FORMAT_TAX_YEAR
+                    message: The provided tax year is invalid
+                RULE_TAX_YEAR_RANGE_INVALID:
+                  description: Tax year range invalid. A tax year range of one year is required.
+                  value: &ref_12
+                    code: RULE_TAX_YEAR_RANGE_INVALID
+                    message: A tax year range of one year is required
+                RULE_TAX_YEAR_NOT_SUPPORTED:
+                  description: |
+                    The specified tax year is not supported. The tax year specified is before the minimum tax year value.
+                  value: &ref_13
+                    code: RULE_TAX_YEAR_NOT_SUPPORTED
+                    message: The tax year specified does not lie within the supported range
+                RULE_INCORRECT_GOV_TEST_SCENARIO:
+                  description: The request did not match any available Sandbox data. Check that the supplied Gov-Test-Scenario is correct for this endpoint version. This error will only be returned in the Sandbox environment.
+                  value: &ref_14
+                    code: RULE_INCORRECT_GOV_TEST_SCENARIO
+                    message: The supplied Gov-Test-Scenario is not valid
+        '403':
+          description: Forbidden
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: *ref_1
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: *ref_2
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: *ref_3
+              required: false
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_4
+                required: *ref_5
+              examples:
+                CLIENT_OR_AGENT_NOT_AUTHORISED:
+                  description: |
+                    The client or agent is not authorised. This is because: the client is not subscribed to MTD, 
+                    the agent is not subscribed to Agent Services, or the client has not authorised the agent to act on their behalf.
+                  value: &ref_15
+                    code: CLIENT_OR_AGENT_NOT_AUTHORISED
+                    message: The client or agent is not authorised
+        '404':
+          description: Not Found
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: *ref_1
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: *ref_2
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: *ref_3
+              required: false
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_4
+                required: *ref_5
+              examples:
+                MATCHING_RESOURCE_NOT_FOUND:
+                  description: The supplied income source could not be found.
+                  value: &ref_18
+                    code: MATCHING_RESOURCE_NOT_FOUND
+                    message: Matching resource not found
+    put:
+      security:
+        - User-Restricted:
+            - write:self-assessment
+      summary: Create or Amend Partner Income [test only]
+      description: |
+        This endpoint enables you to create or amend partner income. A National Insurance number and tax year must be provided.
+
+        <strong>Note: The partnership UTR in the request body is used to identify the submission for both creation and amendment.</strong>
+
+        ### Test data
+        Scenario simulation using Gov-Test-Scenario headers is only available in the sandbox environment.
+
+        | Header Value (Gov-Test-Scenario) | Scenario                                                                                        |
+        | -------------------------------- | ------------------------------------------------------------------------------------------------|
+        | N/A - DEFAULT                    | Simulates success response.                                                                     |
+        | OUTSIDE_AMENDMENT_WINDOW         | Simulates the scenario where request cannot be completed as it is outside the amendment window. |
+        | STATEFUL                         | Performs a stateful create or update.                                                           |
+      parameters:
+        - name: nino
+          in: path
+          description: |
+            National Insurance number, in the format `AA999999A`
+          schema: *ref_6
+          required: true
+        - name: taxYear
+          in: path
+          description: |
+            The tax year to which the data applies. The start year and end year must not span two tax years.
+            The minimum tax year is 2026-27. No gaps are allowed, for example, 2026-28 is not valid.
+          schema: *ref_7
+          required: true
+        - name: Accept
+          in: header
+          description: |
+            Specifies the response format and the version of the API to be used.
+          schema: *ref_8
+          required: true
+        - name: Content-Type
+          in: header
+          description: |
+            Specifies the format of the request body, which must be JSON.
+          schema:
+            type: string
+            enum:
+              - application/json
+          required: true
+        - name: Authorization
+          in: header
+          description: |
+            An OAuth 2.0 Bearer Token with the *write:self-assessment* scope.
+          schema: &ref_20
+            type: string
+            example: Bearer bb7fed3fe10dd235a2ccda3d50fb
+          required: true
+        - name: Gov-Test-Scenario
+          in: header
+          description: |
+            Only in sandbox environment. See Test Data table for all header values.
+          schema: *ref_9
+          required: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $schema: http://json-schema.org/draft-04/schema#
+              type: object
+              properties:
+                partnershipUtr:
+                  description: A Unique Taxpayer Reference (UTR) for the partnership. If you are a partner in a foreign partnership, you will not have a partnership reference, so submit your personal UTR.
+                  type: string
+                  example: '4564564564'
+                  pattern: ^[0-9]{10}$
+                partnershipName:
+                  description: The name of the partnership.
+                  type: string
+                  example: ABC Partnership
+                  pattern: ^.{1,105}$
+                startDate:
+                  description: |-
+                    The date the individual joined the partnership during the tax year.
+
+                    Must conform to the format `YYYY-MM-DD`
+                  type: string
+                  format: date
+                  example: '2026-06-24'
+                endDate:
+                  description: |-
+                    The date the individual left the partnership during the tax year.
+
+                    Must conform to the format `YYYY-MM-DD`
+                  type: string
+                  format: date
+                  example: '2026-07-24'
+                cashBasis:
+                  description: Indicates whether the partnership used cash basis (money actually received and paid out) to calculate its trading and professional income and expenses.
+                  type: boolean
+                  example: true
+                partnershipTrades:
+                  description: An array containing details of the partnership's trades.
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    properties:
+                      tradeDescription:
+                        description: A description of the partnership trade or profession. This description must be unique for each trade reported. Validation is case-insensitive.
+                        type: string
+                        example: Consultancy Services
+                        pattern: ^.{1,30}$
+                      tradingOrProfessionalProfits:
+                        description: Object containing details of the individual's share of the partnership's trading or professional profits.
+                        type: object
+                        properties:
+                          shareOfProfitOrLoss:
+                            description: The individual's share of the partnership's trading or professional profit or loss. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: -99999999999.99
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                          basisAdjustment:
+                            description: If your basis period is not the same as your accounting period, enter the adjustment needed to arrive at the profit or loss for the basis period. If the adjustment needs to be taken off the profit figure, this should be negative. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: -99999999999.99
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                          accountingAdjustment:
+                            description: The adjustment for change of accounting practice. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: 0
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                          foreignTaxClaimedDeduction:
+                            description: The foreign tax claimed as deduction only if Foreign Tax Credit Relief is not claimed. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: 0
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                          adjustedProfit:
+                            description: The individual's share of the partnership's profit of the year, after all statutory adjustments have been applied. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: 0
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                          transitionProfitArisingThisYear:
+                            description: The amount of transition profit treated as arising in the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: 0
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                          lossesBroughtForwardTransitionProfit:
+                            description: The amount of losses brought forward from earlier years set off against the tax year's amount of transition profit. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: 0
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                          lossesBroughtForwardAdjustedProfit:
+                            description: The amount of losses brought forward from earlier years set off against the tax year's adjusted profit. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: 0
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                          profitAfterBroughtForwardLosses:
+                            description: The taxable profit remaining after deducting losses brought forward from earlier years, excluding the amount of transition profit treated as arising in the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: 0
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                          otherBusinessIncome:
+                            description: Any other business income received as a partner that was not included in the partnership accounts. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: 0
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                          shareOfTaxableProfit:
+                            description: The individual's share of total taxable profit from the partnership's business for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: 0
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                        additionalProperties: false
+                        required:
+                          - shareOfProfitOrLoss
+                          - adjustedProfit
+                          - shareOfTaxableProfit
+                      tradingOrProfessionalLosses:
+                        description: Object containing details of the individual's share of the partnership's trading or professional losses.
+                        type: object
+                        properties:
+                          adjustedLoss:
+                            description: The individual's share of the partnership's loss of the year, after all statutory adjustments have been applied. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: 0
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                          currentYearLossAppliedToGeneralIncome:
+                            description: The amount of the current tax year's loss set off against the individual's other income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: 0
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                          lossesCarriedBack:
+                            description: The amount of loss to be carried back to previous years and set off against income or capital gains. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: 0
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                          carryForwardLosses:
+                            description: The total amount of losses to carry forward after all other set-offs, including unused losses brought forward. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                            type: number
+                            minimum: 0
+                            maximum: 99999999999.99
+                            multipleOf: 0.01
+                            example: 5000.99
+                        additionalProperties: false
+                    additionalProperties: false
+                    required:
+                      - tradeDescription
+                nationalInsuranceContributions:
+                  description: Object containing details of Class 2 and Class 4 National Insurance contributions (NICs).
+                  type: object
+                  properties:
+                    voluntaryClass2Nics:
+                      description: Indicate whether the individual wants to pay Class 2 NICs voluntarily to protect entitlement to certain benefits if profits are below the Small Profits Threshold.
+                      type: boolean
+                      example: true
+                    class4Exemption:
+                      description: Indicate whether the individual is exempt from paying Class 4 NICs.
+                      type: boolean
+                      example: true
+                    adjustmentToProfitsForClass4:
+                      description: The adjustment to the individual's profits specifically used to calculate Class 4 NICs. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                  additionalProperties: false
+                untaxedSavingsIncome:
+                  description: Object containing details of the individual's share of the partnership's untaxed savings income and related adjustments.
+                  type: object
+                  properties:
+                    shareOfUkUntaxedSavingsIncome:
+                      description: The individual's share of UK untaxed savings income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    untaxedSavingsIncomeAdjustment:
+                      description: The adjustment to UK untaxed savings income, including any adjustment for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: -99999999999.99
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    adjustedUkSavingsIncome:
+                      description: The total adjusted UK savings income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    shareOfForeignUntaxedSavingsIncome:
+                      description: The individual's share of foreign untaxed savings income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    foreignUntaxedSavingsIncomeAdjustment:
+                      description: The adjustment to foreign untaxed savings income, including any adjustment for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: -99999999999.99
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    totalForeignTaxTakenOff:
+                      description: The total amount of foreign tax deducted where Foreign Tax Credit Relief is not being claimed. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    adjustedForeignSavingsIncome:
+                      description: The total adjusted foreign savings income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    totalUntaxedSavingsIncome:
+                      description: The total amount of untaxed savings income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                  additionalProperties: false
+                ukPropertyIncome:
+                  description: Object containing details of the individual's share of the partnership's UK property income and related adjustments.
+                  type: object
+                  properties:
+                    shareOfProfitOrLoss:
+                      description: The individual's share of the partnership's UK property profit or loss. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: -99999999999.99
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    profitOrLossAdjustment:
+                      description: The adjustment to UK property profit or loss, including any adjustment for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: -99999999999.99
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    lossesBroughtForward:
+                      description: The amount of UK property losses brought forward from earlier years set off against the tax year's profits. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    currentYearLossAppliedToGeneralIncome:
+                      description: The amount of the current tax year's UK property loss set off against the individual's other income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    carryForwardLosses:
+                      description: The total amount of UK property losses to carry forward after all other set-offs, including unused losses brought forward. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    shareOfTaxableProfit:
+                      description: The individual's share of total taxable profit from the UK property business for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    residentialPropertyFinanceCosts:
+                      description: The individual's share of the partnership's residential property finance costs for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    residentialPropertyFinanceCostsBroughtForward:
+                      description: The unused residential property finance costs brought forward from earlier years. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                  additionalProperties: false
+                otherUntaxedUkIncome:
+                  description: Object containing details of the individual's share of the partnership's other untaxed UK income and related adjustments.
+                  type: object
+                  properties:
+                    shareOfOtherUntaxedUkIncome:
+                      description: The individual's share of other untaxed UK income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    otherUntaxedUkIncomeAdjustment:
+                      description: The adjustment to other untaxed UK income, including any adjustment for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: -99999999999.99
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    lossesBroughtForward:
+                      description: The amount of losses brought forward from earlier years set off against the tax year's other untaxed UK income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    shareOfTaxableProfit:
+                      description: The individual's share of total taxable profit from other untaxed UK income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    shareOfLoss:
+                      description: The individual's share of loss from other untaxed UK income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    otherUntaxedUkIncomeLossAdjustment:
+                      description: The adjustment to the individual's share of loss from other untaxed UK income for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: -99999999999.99
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    carryForwardLosses:
+                      description: The total amount of other untaxed UK income losses to carry forward after all other set-offs, including unused losses brought forward. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                  additionalProperties: false
+                offshoreFundsIncome:
+                  description: Object containing details of the individual's share of the partnership's income from offshore funds and related adjustments.
+                  type: object
+                  properties:
+                    shareOfOffshoreFundsIncome:
+                      description: The individual's share of income from offshore funds. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    offshoreFundsIncomeAdjustment:
+                      description: The adjustment to income from offshore funds, including any adjustment for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: -99999999999.99
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    totalForeignTaxTakenOff:
+                      description: The total amount of foreign tax deducted where Foreign Tax Credit Relief is not being claimed. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    shareOfTaxableIncome:
+                      description: The individual's share of total taxable income from offshore funds for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                  additionalProperties: false
+                otherUntaxedForeignIncome:
+                  description: Object containing details of the individual's share of the partnership's other untaxed foreign income and related adjustments.
+                  type: object
+                  properties:
+                    shareOfOtherUntaxedForeignIncome:
+                      description: The individual's share of other untaxed foreign income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    otherUntaxedForeignIncomeAdjustment:
+                      description: The adjustment to other untaxed foreign income, including any adjustment for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: -99999999999.99
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    lossesBroughtForward:
+                      description: The amount of losses brought forward from earlier years set off against the tax year's other untaxed foreign income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    totalForeignTaxTakenOff:
+                      description: The total amount of foreign tax deducted where Foreign Tax Credit Relief is not being claimed. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    shareOfTaxableProfit:
+                      description: The individual's share of total taxable profit from other untaxed foreign income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    shareOfLoss:
+                      description: The individual's share of loss from other untaxed foreign income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    otherUntaxedForeignIncomeLossesAdjustment:
+                      description: The adjustment to the individual's share of loss from other untaxed foreign income for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: -99999999999.99
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    carryForwardLosses:
+                      description: The total amount of other untaxed foreign income losses to carry forward after all other set-offs, including unused losses brought forward. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    residentialPropertyFinanceCosts:
+                      description: The individual's share of the partnership's residential property finance costs for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    residentialPropertyFinanceCostsBroughtForward:
+                      description: The unused residential property finance costs brought forward from earlier years. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                  additionalProperties: false
+                totalUntaxedIncomeExcludingSavings:
+                  description: Object containing details of the individual's share of the partnership's total untaxed income, excluding savings income.
+                  type: object
+                  properties:
+                    shareOfTotalUntaxedIncomeExcludingSavings:
+                      description: The individual's share of the partnership's total untaxed income, excluding savings income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                  additionalProperties: false
+                  required:
+                    - shareOfTotalUntaxedIncomeExcludingSavings
+                taxedIncomeAndDividendIncome:
+                  description: Object containing details of the individual's share of the partnership's dividend income and taxed income.
+                  type: object
+                  properties:
+                    shareOfDividendIncome:
+                      description: The individual's share of dividend income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    dividendIncomeForeignTaxTakenOff:
+                      description: The amount of foreign tax deducted from dividend income where Foreign Tax Credit Relief is not being claimed. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    totalDividendIncome:
+                      description: The total amount of dividend income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    shareOfTaxedIncome:
+                      description: The individual's share of taxed income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    taxedIncomeForeignTaxTakenOff:
+                      description: The amount of foreign tax deducted from taxed income where Foreign Tax Credit Relief is not being claimed. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    totalTaxedIncome:
+                      description: The total amount of taxed income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    shareOfOtherTaxedIncome:
+                      description: The individual's share of other taxed income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    otherTaxedIncomeForeignTaxTakenOff:
+                      description: The amount of foreign tax deducted from other taxed income where Foreign Tax Credit Relief is not being claimed. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                  additionalProperties: false
+                totalTaxedAndUntaxedIncome:
+                  description: Object containing details of the individual's share of the partnership's total taxed and untaxed income.
+                  type: object
+                  properties:
+                    shareOfTotalTaxedAndUntaxedIncome:
+                      description: The individual's share of the total taxed and untaxed income from the partnership. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                  additionalProperties: false
+                  required:
+                    - shareOfTotalTaxedAndUntaxedIncome
+                taxPaidAndDeductions:
+                  description: Object containing details of the individual's share of the partnership's tax paid and deductions.
+                  type: object
+                  properties:
+                    shareOfIncomeTaxTakenOffPartnershipIncome:
+                      description: The individual's share of income tax deducted from partnership income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    shareOfCisDeductionsByContractors:
+                      description: The individual's share of Construction Industry Scheme (CIS) deductions made by contractors. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    shareOfTaxTakenOffTradingIncome:
+                      description: The individual's share of any tax deducted from trading income (excluding CIS deductions). The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                    shareOfTotalTaxTakenOff:
+                      description: The individual's share of total tax deducted. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                      type: number
+                      minimum: 0
+                      maximum: 99999999999.99
+                      multipleOf: 0.01
+                      example: 5000.99
+                  additionalProperties: false
+              additionalProperties: false
+              required:
+                - partnershipUtr
+                - partnershipName
+            example:
+              partnershipUtr: '4564564564'
+              partnershipName: ABC Partnership
+              startDate: '2026-06-24'
+              endDate: '2026-07-24'
+              cashBasis: true
+              partnershipTrades:
+                - tradeDescription: Consultancy Services
+                  tradingOrProfessionalProfits:
+                    shareOfProfitOrLoss: 5000.99
+                    basisAdjustment: 5000.99
+                    accountingAdjustment: 5000.99
+                    foreignTaxClaimedDeduction: 5000.99
+                    adjustedProfit: 5000.99
+                    transitionProfitArisingThisYear: 5000.99
+                    lossesBroughtForwardTransitionProfit: 5000.99
+                    lossesBroughtForwardAdjustedProfit: 5000.99
+                    profitAfterBroughtForwardLosses: 5000.99
+                    otherBusinessIncome: 5000.99
+                    shareOfTaxableProfit: 5000.99
+                  tradingOrProfessionalLosses:
+                    adjustedLoss: 5000.99
+                    currentYearLossAppliedToGeneralIncome: 5000.99
+                    lossesCarriedBack: 5000.99
+                    carryForwardLosses: 5000.99
+              nationalInsuranceContributions:
+                voluntaryClass2Nics: true
+                class4Exemption: true
+                adjustmentToProfitsForClass4: 5000.99
+              untaxedSavingsIncome:
+                shareOfUkUntaxedSavingsIncome: 5000.99
+                untaxedSavingsIncomeAdjustment: 5000.99
+                adjustedUkSavingsIncome: 5000.99
+                shareOfForeignUntaxedSavingsIncome: 5000.99
+                foreignUntaxedSavingsIncomeAdjustment: 5000.99
+                totalForeignTaxTakenOff: 5000.99
+                adjustedForeignSavingsIncome: 5000.99
+                totalUntaxedSavingsIncome: 5000.99
+              ukPropertyIncome:
+                shareOfProfitOrLoss: 5000.99
+                profitOrLossAdjustment: 5000.99
+                lossesBroughtForward: 5000.99
+                currentYearLossAppliedToGeneralIncome: 5000.99
+                carryForwardLosses: 5000.99
+                shareOfTaxableProfit: 5000.99
+                residentialPropertyFinanceCosts: 5000.99
+                residentialPropertyFinanceCostsBroughtForward: 5000.99
+              otherUntaxedUkIncome:
+                shareOfOtherUntaxedUkIncome: 5000.99
+                otherUntaxedUkIncomeAdjustment: 5000.99
+                lossesBroughtForward: 5000.99
+                shareOfTaxableProfit: 5000.99
+                shareOfLoss: 5000.99
+                otherUntaxedUkIncomeLossAdjustment: 5000.99
+                carryForwardLosses: 5000.99
+              offshoreFundsIncome:
+                shareOfOffshoreFundsIncome: 5000.99
+                offshoreFundsIncomeAdjustment: 5000.99
+                totalForeignTaxTakenOff: 5000.99
+                shareOfTaxableIncome: 5000.99
+              otherUntaxedForeignIncome:
+                shareOfOtherUntaxedForeignIncome: 5000.99
+                otherUntaxedForeignIncomeAdjustment: 5000.99
+                lossesBroughtForward: 5000.99
+                totalForeignTaxTakenOff: 5000.99
+                shareOfTaxableProfit: 5000.99
+                shareOfLoss: 5000.99
+                otherUntaxedForeignIncomeLossesAdjustment: 5000.99
+                carryForwardLosses: 5000.99
+                residentialPropertyFinanceCosts: 5000.99
+                residentialPropertyFinanceCostsBroughtForward: 5000.99
+              totalUntaxedIncomeExcludingSavings:
+                shareOfTotalUntaxedIncomeExcludingSavings: 5000.99
+              taxedIncomeAndDividendIncome:
+                shareOfDividendIncome: 5000.99
+                dividendIncomeForeignTaxTakenOff: 5000.99
+                totalDividendIncome: 5000.99
+                shareOfTaxedIncome: 5000.99
+                taxedIncomeForeignTaxTakenOff: 5000.99
+                totalTaxedIncome: 5000.99
+                shareOfOtherTaxedIncome: 5000.99
+                otherTaxedIncomeForeignTaxTakenOff: 5000.99
+              totalTaxedAndUntaxedIncome:
+                shareOfTotalTaxedAndUntaxedIncome: 5000.99
+              taxPaidAndDeductions:
+                shareOfIncomeTaxTakenOffPartnershipIncome: 5000.99
+                shareOfCisDeductionsByContractors: 5000.99
+                shareOfTaxTakenOffTradingIncome: 5000.99
+                shareOfTotalTaxTakenOff: 5000.99
+      responses:
+        '204':
+          description: Success (No Content)
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: *ref_1
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: *ref_2
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: *ref_3
+              required: false
+        '400':
+          description: Bad request
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: *ref_1
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: *ref_2
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: *ref_3
+              required: false
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_4
+                required: *ref_5
+              examples:
+                FORMAT_NINO:
+                  description: The format of the supplied NINO field is not valid.
+                  value: *ref_10
+                FORMAT_TAX_YEAR:
+                  description: The format of the supplied tax year field is not valid.
+                  value: *ref_11
+                RULE_TAX_YEAR_RANGE_INVALID:
+                  description: Tax year range invalid. A tax year range of one year is required.
+                  value: *ref_12
+                RULE_TAX_YEAR_NOT_SUPPORTED:
+                  description: |
+                    The specified tax year is not supported. The tax year specified is before the minimum tax year value.
+                  value: *ref_13
+                FORMAT_PARTNERSHIP_UTR:
+                  description: The format of the supplied partnership UTR field is not valid.
+                  value: &ref_17
+                    code: FORMAT_PARTNERSHIP_UTR
+                    message: The provided partnership UTR is invalid
+                FORMAT_PARTNERSHIP_NAME:
+                  description: The format of the supplied partnership name field is not valid.
+                  value:
+                    code: FORMAT_PARTNERSHIP_NAME
+                    message: The provided partnership name is invalid
+                FORMAT_START_DATE:
+                  description: The format of the supplied start date field is not valid.
+                  value:
+                    code: FORMAT_START_DATE
+                    message: The provided start date is invalid
+                FORMAT_END_DATE:
+                  description: The format of the supplied end date field is not valid.
+                  value:
+                    code: FORMAT_END_DATE
+                    message: The provided end date is invalid
+                FORMAT_TRADE_DESCRIPTION:
+                  description: The format of the supplied trade description field is not valid.
+                  value:
+                    code: FORMAT_TRADE_DESCRIPTION
+                    message: The provided trade description is invalid
+                FORMAT_VALUE:
+                  description: One or more values have been added with the incorrect format.
+                  value:
+                    code: FORMAT_VALUE
+                    message: The value must be between 0 and 99999999999.99
+                RULE_START_DATE:
+                  description: The start date must fall within the tax year provided.
+                  value:
+                    code: RULE_START_DATE
+                    message: The start date does not fall within the tax year provided
+                RULE_END_DATE:
+                  description: The end date must fall within the tax year provided.
+                  value:
+                    code: RULE_END_DATE
+                    message: The end date does not fall within the tax year provided
+                RULE_END_DATE_BEFORE_START_DATE:
+                  description: The end date is before the start date.
+                  value:
+                    code: RULE_END_DATE_BEFORE_START_DATE
+                    message: The end date is before the start date
+                RULE_DUPLICATE_TRADE_DESCRIPTION:
+                  description: A duplicate trade description has been provided for the partnership. Trade descriptions must be unique (case-insensitive).
+                  value:
+                    code: RULE_DUPLICATE_TRADE_DESCRIPTION
+                    message: The trade description already exists for this partnership
+                RULE_MISSING_PARTNERSHIP_TRADES_DETAILS:
+                  description: At least one of tradingOrProfessionalProfits or tradingOrProfessionalLosses must be provided.
+                  value:
+                    code: RULE_MISSING_PARTNERSHIP_TRADES_DETAILS
+                    message: At least one of tradingOrProfessionalProfits or tradingOrProfessionalLosses must be provided
+                RULE_INCORRECT_OR_EMPTY_BODY_SUBMITTED:
+                  description: An empty or non-matching body was submitted.
+                  value:
+                    code: RULE_INCORRECT_OR_EMPTY_BODY_SUBMITTED
+                    message: An empty or non-matching body was submitted
+                RULE_INCORRECT_GOV_TEST_SCENARIO:
+                  description: The request did not match any available Sandbox data. Check that the supplied Gov-Test-Scenario is correct for this endpoint version. This error will only be returned in the Sandbox environment.
+                  value: *ref_14
+                RULE_OUTSIDE_AMENDMENT_WINDOW:
+                  description: The request cannot be completed as you are outside the amendment window.
+                  value: &ref_21
+                    code: RULE_OUTSIDE_AMENDMENT_WINDOW
+                    message: You are outside the amendment window
+        '403':
+          description: Forbidden
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: *ref_1
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: *ref_2
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: *ref_3
+              required: false
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_4
+                required: *ref_5
+              examples:
+                CLIENT_OR_AGENT_NOT_AUTHORISED:
+                  description: |
+                    The client or agent is not authorised. This is because: the client is not subscribed to MTD, 
+                    the agent is not subscribed to Agent Services, or the client has not authorised the agent to act on their behalf.
+                  value: *ref_15
+  /individuals/partner-income/{nino}/{taxYear}/partnership/{partnershipUtr}:
+    get:
+      security:
+        - User-Restricted:
+            - read:self-assessment
+      summary: Retrieve Partner Income [test only]
+      description: |
+        This endpoint enables you to retrieve partner income.
+        A National Insurance number, tax year and partnership UTR must be provided.
+
+        ### Test data
+        Scenario simulation using Gov-Test-Scenario headers is only available in the sandbox environment.
+
+        | Header Value (Gov-Test-Scenario) | Scenario                                       |
+        | -------------------------------- | ---------------------------------------------- |
+        | N/A - DEFAULT                    | Simulates success response.                    |
+        | NOT_FOUND                        | Simulates the scenario where no data is found. |
+        | STATEFUL                         | Performs a stateful retrieve.                  |
+      parameters:
+        - name: nino
+          in: path
+          description: |
+            National Insurance number, in the format `AA999999A`
+          schema: *ref_6
+          required: true
+        - name: taxYear
+          in: path
+          description: |
+            The tax year to which the data applies. The start year and end year must not span two tax years.
+            The minimum tax year is 2026-27. No gaps are allowed, for example, 2026-28 is not valid.
+          schema: *ref_7
+          required: true
+        - name: partnershipUtr
+          in: path
+          description: |
+            A Unique Taxpayer Reference (UTR) for the partnership. If you are a partner in a foreign partnership, you will not
+            have a partnership reference, so submit your personal UTR.<p>Must conform to the regular expression `^[0-9]{10}$`
+          schema: &ref_19
+            type: string
+            pattern: ^[0-9]{10}$
+            example: 4564564564
+          required: true
+        - name: Accept
+          in: header
+          description: |
+            Specifies the response format and the version of the API to be used.
+          schema: *ref_8
+          required: true
+        - name: Authorization
+          in: header
+          description: |
+            An OAuth 2.0 Bearer Token with the *read:self-assessment* scope.
+          schema: *ref_16
+          required: true
+        - name: Gov-Test-Scenario
+          in: header
+          description: |
+            Only in sandbox environment. See Test Data table for all header values.
+          schema: *ref_9
+          required: false
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: *ref_1
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: *ref_2
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: *ref_3
+              required: false
+          content:
+            application/json:
+              schema:
+                $schema: http://json-schema.org/draft-04/schema#
+                type: object
+                properties:
+                  submittedOn:
+                    type: string
+                    description: The date and time of the partner income submission, in the format `YYYY-MM-DDThh:mm:ss.SSSZ`
+                    format: date-time
+                    example: '2026-08-24T14:15:22.544Z'
+                  partnershipUtr:
+                    description: A Unique Taxpayer Reference (UTR) for the partnership. If you are a partner in a foreign partnership, you will not have a partnership reference, so submit your personal UTR.
+                    type: string
+                    example: '4564564564'
+                    pattern: ^[0-9]{10}$
+                  partnershipName:
+                    description: The name of the partnership.
+                    type: string
+                    example: ABC Partnership
+                    pattern: ^.{1,105}$
+                  startDate:
+                    description: |-
+                      The date the individual joined the partnership during the tax year.
+
+                      Must conform to the format `YYYY-MM-DD`
+                    type: string
+                    format: date
+                    example: '2026-06-24'
+                  endDate:
+                    description: |-
+                      The date the individual left the partnership during the tax year.
+
+                      Must conform to the format `YYYY-MM-DD`
+                    type: string
+                    format: date
+                    example: '2026-07-24'
+                  cashBasis:
+                    description: Indicates whether the partnership used cash basis (money actually received and paid out) to calculate its trading and professional income and expenses.
+                    type: boolean
+                    example: true
+                  partnershipTrades:
+                    description: An array containing details of the partnership's trades.
+                    type: array
+                    minItems: 1
+                    items:
+                      type: object
+                      properties:
+                        tradeDescription:
+                          description: A description of the partnership trade or profession. This description is unique for each trade reported.
+                          type: string
+                          example: Consultancy Services
+                          pattern: ^.{1,30}$
+                        tradingOrProfessionalProfits:
+                          description: Object containing details of the individual's share of the partnership's trading or professional profits.
+                          type: object
+                          properties:
+                            shareOfProfitOrLoss:
+                              description: The individual's share of the partnership's trading or professional profit or loss. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: -99999999999.99
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                            basisAdjustment:
+                              description: If your basis period is not the same as your accounting period, enter the adjustment needed to arrive at the profit or loss for the basis period. If the adjustment needs to be taken off the profit figure, this should be negative. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: -99999999999.99
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                            accountingAdjustment:
+                              description: The adjustment for change of accounting practice. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: 0
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                            foreignTaxClaimedDeduction:
+                              description: The foreign tax claimed as deduction only if Foreign Tax Credit Relief is not claimed. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: 0
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                            adjustedProfit:
+                              description: The individual's share of the partnership's profit of the year, after all statutory adjustments have been applied. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: 0
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                            transitionProfitArisingThisYear:
+                              description: The amount of transition profit treated as arising in the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: 0
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                            lossesBroughtForwardTransitionProfit:
+                              description: The amount of losses brought forward from earlier years set off against the tax year's amount of transition profit. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: 0
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                            lossesBroughtForwardAdjustedProfit:
+                              description: The amount of losses brought forward from earlier years set off against the tax year's adjusted profit. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: 0
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                            profitAfterBroughtForwardLosses:
+                              description: The taxable profit remaining after deducting losses brought forward from earlier years, excluding the amount of transition profit treated as arising in the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: 0
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                            otherBusinessIncome:
+                              description: Any other business income received as a partner that was not included in the partnership accounts. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: 0
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                            shareOfTaxableProfit:
+                              description: The individual's share of total taxable profit from the partnership's business for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: 0
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                          additionalProperties: false
+                          required:
+                            - shareOfProfitOrLoss
+                            - adjustedProfit
+                            - shareOfTaxableProfit
+                        tradingOrProfessionalLosses:
+                          description: Object containing details of the individual's share of the partnership's trading or professional losses.
+                          type: object
+                          properties:
+                            adjustedLoss:
+                              description: The individual's share of the partnership's loss of the year, after all statutory adjustments have been applied. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: 0
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                            currentYearLossAppliedToGeneralIncome:
+                              description: The amount of the current tax year's loss set off against the individual's other income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: 0
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                            lossesCarriedBack:
+                              description: The amount of loss to be carried back to previous years and set off against income or capital gains. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: 0
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                            carryForwardLosses:
+                              description: The total amount of losses to carry forward after all other set-offs, including unused losses brought forward. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                              type: number
+                              minimum: 0
+                              maximum: 99999999999.99
+                              multipleOf: 0.01
+                              example: 5000.99
+                          additionalProperties: false
+                      additionalProperties: false
+                      required:
+                        - tradeDescription
+                  nationalInsuranceContributions:
+                    description: Object containing details of Class 2 and Class 4 National Insurance contributions (NICs).
+                    type: object
+                    properties:
+                      voluntaryClass2Nics:
+                        description: Indicate whether the individual wants to pay Class 2 NICs voluntarily to protect entitlement to certain benefits if profits are below the Small Profits Threshold.
+                        type: boolean
+                        example: true
+                      class4Exemption:
+                        description: Indicate whether the individual is exempt from paying Class 4 NICs.
+                        type: boolean
+                        example: true
+                      adjustmentToProfitsForClass4:
+                        description: The adjustment to the individual's profits specifically used to calculate Class 4 NICs. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                    additionalProperties: false
+                  untaxedSavingsIncome:
+                    description: Object containing details of the individual's share of the partnership's untaxed savings income and related adjustments.
+                    type: object
+                    properties:
+                      shareOfUkUntaxedSavingsIncome:
+                        description: The individual's share of UK untaxed savings income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      untaxedSavingsIncomeAdjustment:
+                        description: The adjustment to UK untaxed savings income, including any adjustment for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: -99999999999.99
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      adjustedUkSavingsIncome:
+                        description: The total adjusted UK savings income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      shareOfForeignUntaxedSavingsIncome:
+                        description: The individual's share of foreign untaxed savings income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      foreignUntaxedSavingsIncomeAdjustment:
+                        description: The adjustment to foreign untaxed savings income, including any adjustment for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: -99999999999.99
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      totalForeignTaxTakenOff:
+                        description: The total amount of foreign tax deducted where Foreign Tax Credit Relief is not being claimed. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      adjustedForeignSavingsIncome:
+                        description: The total adjusted foreign savings income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      totalUntaxedSavingsIncome:
+                        description: The total amount of untaxed savings income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                    additionalProperties: false
+                  ukPropertyIncome:
+                    description: Object containing details of the individual's share of the partnership's UK property income and related adjustments.
+                    type: object
+                    properties:
+                      shareOfProfitOrLoss:
+                        description: The individual's share of the partnership's UK property profit or loss. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: -99999999999.99
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      profitOrLossAdjustment:
+                        description: The adjustment to UK property profit or loss, including any adjustment for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: -99999999999.99
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      lossesBroughtForward:
+                        description: The amount of UK property losses brought forward from earlier years set off against the tax year's profits. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      currentYearLossAppliedToGeneralIncome:
+                        description: The amount of the current tax year's UK property loss set off against the individual's other income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      carryForwardLosses:
+                        description: The total amount of UK property losses to carry forward after all other set-offs, including unused losses brought forward. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      shareOfTaxableProfit:
+                        description: The individual's share of total taxable profit from the UK property business for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      residentialPropertyFinanceCosts:
+                        description: The individual's share of the partnership's residential property finance costs for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      residentialPropertyFinanceCostsBroughtForward:
+                        description: The unused residential property finance costs brought forward from earlier years. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                    additionalProperties: false
+                  otherUntaxedUkIncome:
+                    description: Object containing details of the individual's share of the partnership's other untaxed UK income and related adjustments.
+                    type: object
+                    properties:
+                      shareOfOtherUntaxedUkIncome:
+                        description: The individual's share of other untaxed UK income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      otherUntaxedUkIncomeAdjustment:
+                        description: The adjustment to other untaxed UK income, including any adjustment for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: -99999999999.99
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      lossesBroughtForward:
+                        description: The amount of losses brought forward from earlier years set off against the tax year's other untaxed UK income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      shareOfTaxableProfit:
+                        description: The individual's share of total taxable profit from other untaxed UK income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      shareOfLoss:
+                        description: The individual's share of loss from other untaxed UK income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      otherUntaxedUkIncomeLossAdjustment:
+                        description: The adjustment to the individual's share of loss from other untaxed UK income for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: -99999999999.99
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      carryForwardLosses:
+                        description: The total amount of other untaxed UK income losses to carry forward after all other set-offs, including unused losses brought forward. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                    additionalProperties: false
+                  offshoreFundsIncome:
+                    description: Object containing details of the individual's share of the partnership's income from offshore funds and related adjustments.
+                    type: object
+                    properties:
+                      shareOfOffshoreFundsIncome:
+                        description: The individual's share of income from offshore funds. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      offshoreFundsIncomeAdjustment:
+                        description: The adjustment to income from offshore funds, including any adjustment for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: -99999999999.99
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      totalForeignTaxTakenOff:
+                        description: The total amount of foreign tax deducted where Foreign Tax Credit Relief is not being claimed. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      shareOfTaxableIncome:
+                        description: The individual's share of total taxable income from offshore funds for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                    additionalProperties: false
+                  otherUntaxedForeignIncome:
+                    description: Object containing details of the individual's share of the partnership's other untaxed foreign income and related adjustments.
+                    type: object
+                    properties:
+                      shareOfOtherUntaxedForeignIncome:
+                        description: The individual's share of other untaxed foreign income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      otherUntaxedForeignIncomeAdjustment:
+                        description: The adjustment to other untaxed foreign income, including any adjustment for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: -99999999999.99
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      lossesBroughtForward:
+                        description: The amount of losses brought forward from earlier years set off against the tax year's other untaxed foreign income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      totalForeignTaxTakenOff:
+                        description: The total amount of foreign tax deducted where Foreign Tax Credit Relief is not being claimed. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      shareOfTaxableProfit:
+                        description: The individual's share of total taxable profit from other untaxed foreign income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      shareOfLoss:
+                        description: The individual's share of loss from other untaxed foreign income for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      otherUntaxedForeignIncomeLossesAdjustment:
+                        description: The adjustment to the individual's share of loss from other untaxed foreign income for the tax year. The value must be between -99999999999.99 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: -99999999999.99
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      carryForwardLosses:
+                        description: The total amount of other untaxed foreign income losses to carry forward after all other set-offs, including unused losses brought forward. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      residentialPropertyFinanceCosts:
+                        description: The individual's share of the partnership's residential property finance costs for the tax year. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      residentialPropertyFinanceCostsBroughtForward:
+                        description: The unused residential property finance costs brought forward from earlier years. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                    additionalProperties: false
+                  totalUntaxedIncomeExcludingSavings:
+                    description: Object containing details of the individual's share of the partnership's total untaxed income, excluding savings income.
+                    type: object
+                    properties:
+                      shareOfTotalUntaxedIncomeExcludingSavings:
+                        description: The individual's share of the partnership's total untaxed income, excluding savings income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                    additionalProperties: false
+                    required:
+                      - shareOfTotalUntaxedIncomeExcludingSavings
+                  taxedIncomeAndDividendIncome:
+                    description: Object containing details of the individual's share of the partnership's dividend income and taxed income.
+                    type: object
+                    properties:
+                      shareOfDividendIncome:
+                        description: The individual's share of dividend income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      dividendIncomeForeignTaxTakenOff:
+                        description: The amount of foreign tax deducted from dividend income where Foreign Tax Credit Relief is not being claimed. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      totalDividendIncome:
+                        description: The total amount of dividend income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      shareOfTaxedIncome:
+                        description: The individual's share of taxed income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      taxedIncomeForeignTaxTakenOff:
+                        description: The amount of foreign tax deducted from taxed income where Foreign Tax Credit Relief is not being claimed. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      totalTaxedIncome:
+                        description: The total amount of taxed income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      shareOfOtherTaxedIncome:
+                        description: The individual's share of other taxed income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      otherTaxedIncomeForeignTaxTakenOff:
+                        description: The amount of foreign tax deducted from other taxed income where Foreign Tax Credit Relief is not being claimed. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                    additionalProperties: false
+                  totalTaxedAndUntaxedIncome:
+                    description: Object containing details of the individual's share of the partnership's total taxed and untaxed income.
+                    type: object
+                    properties:
+                      shareOfTotalTaxedAndUntaxedIncome:
+                        description: The individual's share of the total taxed and untaxed income from the partnership. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                    additionalProperties: false
+                    required:
+                      - shareOfTotalTaxedAndUntaxedIncome
+                  taxPaidAndDeductions:
+                    description: Object containing details of the individual's share of the partnership's tax paid and deductions.
+                    type: object
+                    properties:
+                      shareOfIncomeTaxTakenOffPartnershipIncome:
+                        description: The individual's share of income tax deducted from partnership income. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      shareOfCisDeductionsByContractors:
+                        description: The individual's share of Construction Industry Scheme (CIS) deductions made by contractors. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      shareOfTaxTakenOffTradingIncome:
+                        description: The individual's share of any tax deducted from trading income (excluding CIS deductions). The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                      shareOfTotalTaxTakenOff:
+                        description: The individual's share of total tax deducted. The value must be between 0 and 99999999999.99 up to 2 decimal places.
+                        type: number
+                        minimum: 0
+                        maximum: 99999999999.99
+                        multipleOf: 0.01
+                        example: 5000.99
+                    additionalProperties: false
+                additionalProperties: false
+                required:
+                  - submittedOn
+                  - partnershipUtr
+                  - partnershipName
+              example:
+                submittedOn: '2026-08-24T14:15:22.544Z'
+                partnershipUtr: '4564564564'
+                partnershipName: ABC Partnership
+                startDate: '2026-06-24'
+                endDate: '2026-07-24'
+                cashBasis: true
+                partnershipTrades:
+                  - tradeDescription: Consultancy Services
+                    tradingOrProfessionalProfits:
+                      shareOfProfitOrLoss: 99999999999.99
+                      basisAdjustment: 99999999999.99
+                      accountingAdjustment: 5000.99
+                      foreignTaxClaimedDeduction: 5000.99
+                      adjustedProfit: 5000.99
+                      transitionProfitArisingThisYear: 5000.99
+                      lossesBroughtForwardTransitionProfit: 5000.99
+                      lossesBroughtForwardAdjustedProfit: 5000.99
+                      profitAfterBroughtForwardLosses: 5000.99
+                      otherBusinessIncome: 5000.99
+                      shareOfTaxableProfit: 5000.99
+                    tradingOrProfessionalLosses:
+                      adjustedLoss: 5000.99
+                      currentYearLossAppliedToGeneralIncome: 5000.99
+                      lossesCarriedBack: 5000.99
+                      carryForwardLosses: 5000.99
+                nationalInsuranceContributions:
+                  voluntaryClass2Nics: true
+                  class4Exemption: true
+                  adjustmentToProfitsForClass4: 5000.99
+                untaxedSavingsIncome:
+                  shareOfUkUntaxedSavingsIncome: 5000.99
+                  untaxedSavingsIncomeAdjustment: 99999999999.99
+                  adjustedUkSavingsIncome: 5000.99
+                  shareOfForeignUntaxedSavingsIncome: 5000.99
+                  foreignUntaxedSavingsIncomeAdjustment: 99999999999.99
+                  totalForeignTaxTakenOff: 5000.99
+                  adjustedForeignSavingsIncome: 5000.99
+                  totalUntaxedSavingsIncome: 5000.99
+                ukPropertyIncome:
+                  shareOfProfitOrLoss: 99999999999.99
+                  profitOrLossAdjustment: 99999999999.99
+                  lossesBroughtForward: 5000.99
+                  currentYearLossAppliedToGeneralIncome: 5000.99
+                  carryForwardLosses: 5000.99
+                  shareOfTaxableProfit: 5000.99
+                  residentialPropertyFinanceCosts: 5000.99
+                  residentialPropertyFinanceCostsBroughtForward: 5000.99
+                otherUntaxedUkIncome:
+                  shareOfOtherUntaxedUkIncome: 5000.99
+                  otherUntaxedUkIncomeAdjustment: 99999999999.99
+                  lossesBroughtForward: 5000.99
+                  shareOfTaxableProfit: 5000.99
+                  shareOfLoss: 5000.99
+                  otherUntaxedUkIncomeLossAdjustment: 99999999999.99
+                  carryForwardLosses: 5000.99
+                offshoreFundsIncome:
+                  shareOfOffshoreFundsIncome: 5000.99
+                  offshoreFundsIncomeAdjustment: 99999999999.99
+                  totalForeignTaxTakenOff: 5000.99
+                  shareOfTaxableIncome: 5000.99
+                otherUntaxedForeignIncome:
+                  shareOfOtherUntaxedForeignIncome: 5000.99
+                  otherUntaxedForeignIncomeAdjustment: 99999999999.99
+                  lossesBroughtForward: 5000.99
+                  totalForeignTaxTakenOff: 5000.99
+                  shareOfTaxableProfit: 5000.99
+                  shareOfLoss: 5000.99
+                  otherUntaxedForeignIncomeLossesAdjustment: 99999999999.99
+                  carryForwardLosses: 5000.99
+                  residentialPropertyFinanceCosts: 5000.99
+                  residentialPropertyFinanceCostsBroughtForward: 5000.99
+                totalUntaxedIncomeExcludingSavings:
+                  shareOfTotalUntaxedIncomeExcludingSavings: 5000.99
+                taxedIncomeAndDividendIncome:
+                  shareOfDividendIncome: 5000.99
+                  dividendIncomeForeignTaxTakenOff: 5000.99
+                  totalDividendIncome: 5000.99
+                  shareOfTaxedIncome: 5000.99
+                  taxedIncomeForeignTaxTakenOff: 5000.99
+                  totalTaxedIncome: 5000.99
+                  shareOfOtherTaxedIncome: 5000.99
+                  otherTaxedIncomeForeignTaxTakenOff: 5000.99
+                totalTaxedAndUntaxedIncome:
+                  shareOfTotalTaxedAndUntaxedIncome: 5000.99
+                taxPaidAndDeductions:
+                  shareOfIncomeTaxTakenOffPartnershipIncome: 5000.99
+                  shareOfCisDeductionsByContractors: 5000.99
+                  shareOfTaxTakenOffTradingIncome: 5000.99
+                  shareOfTotalTaxTakenOff: 5000.99
+        '400':
+          description: Bad request
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: *ref_1
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: *ref_2
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: *ref_3
+              required: false
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_4
+                required: *ref_5
+              examples:
+                FORMAT_NINO:
+                  description: The format of the supplied NINO field is not valid.
+                  value: *ref_10
+                FORMAT_TAX_YEAR:
+                  description: The format of the supplied tax year field is not valid.
+                  value: *ref_11
+                FORMAT_PARTNERSHIP_UTR:
+                  description: The format of the supplied partnership UTR field is not valid.
+                  value: *ref_17
+                RULE_TAX_YEAR_RANGE_INVALID:
+                  description: Tax year range invalid. A tax year range of one year is required.
+                  value: *ref_12
+                RULE_TAX_YEAR_NOT_SUPPORTED:
+                  description: |
+                    The specified tax year is not supported. The tax year specified is before the minimum tax year value.
+                  value: *ref_13
+                RULE_INCORRECT_GOV_TEST_SCENARIO:
+                  description: The request did not match any available Sandbox data. Check that the supplied Gov-Test-Scenario is correct for this endpoint version. This error will only be returned in the Sandbox environment.
+                  value: *ref_14
+        '403':
+          description: Forbidden
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: *ref_1
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: *ref_2
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: *ref_3
+              required: false
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_4
+                required: *ref_5
+              examples:
+                CLIENT_OR_AGENT_NOT_AUTHORISED:
+                  description: |
+                    The client or agent is not authorised. This is because: the client is not subscribed to MTD, 
+                    the agent is not subscribed to Agent Services, or the client has not authorised the agent to act on their behalf.
+                  value: *ref_15
+        '404':
+          description: Not Found
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: *ref_1
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: *ref_2
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: *ref_3
+              required: false
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_4
+                required: *ref_5
+              examples:
+                MATCHING_RESOURCE_NOT_FOUND:
+                  description: The supplied income source could not be found.
+                  value: *ref_18
+    delete:
+      security:
+        - User-Restricted:
+            - write:self-assessment
+      summary: Delete Partner Income [test only]
+      description: |
+        This endpoint enables you to delete partner income.
+        A National Insurance number, tax year and partnership UTR must be provided.
+
+        ### Test data
+        Scenario simulation using Gov-Test-Scenario headers is only available in the sandbox environment.
+
+        | Header Value (Gov-Test-Scenario) | Scenario                                                                                        |
+        | -------------------------------- | ----------------------------------------------------------------------------------------------- |
+        | N/A - DEFAULT                    | Simulates success response.                                                                     |
+        | NOT_FOUND                        | Simulates the scenario where no data is found.                                                  |
+        | OUTSIDE_AMENDMENT_WINDOW         | Simulates the scenario where request cannot be completed as it is outside the amendment window. |
+        | STATEFUL                         | Performs a stateful delete.                                                                     |
+      parameters:
+        - name: nino
+          in: path
+          description: |
+            National Insurance number, in the format `AA999999A`
+          schema: *ref_6
+          required: true
+        - name: taxYear
+          in: path
+          description: |
+            The tax year to which the data applies. The start year and end year must not span two tax years.
+            The minimum tax year is 2026-27. No gaps are allowed, for example, 2026-28 is not valid.
+          schema: *ref_7
+          required: true
+        - name: partnershipUtr
+          in: path
+          description: |
+            A Unique Taxpayer Reference (UTR) for the partnership. If you are a partner in a foreign partnership, you will not
+            have a partnership reference, so submit your personal UTR.<p>Must conform to the regular expression `^[0-9]{10}$`
+          schema: *ref_19
+          required: true
+        - name: Accept
+          in: header
+          description: |
+            Specifies the response format and the version of the API to be used.
+          schema: *ref_8
+          required: true
+        - name: Authorization
+          in: header
+          description: |
+            An OAuth 2.0 Bearer Token with the *write:self-assessment* scope.
+          schema: *ref_20
+          required: true
+        - name: Gov-Test-Scenario
+          in: header
+          description: |
+            Only in sandbox environment. See Test Data table for all header values.
+          schema: *ref_9
+          required: false
+      responses:
+        '204':
+          description: Success (No Content)
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: *ref_1
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: *ref_2
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: *ref_3
+              required: false
+        '400':
+          description: Bad request
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: *ref_1
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: *ref_2
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: *ref_3
+              required: false
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_4
+                required: *ref_5
+              examples:
+                FORMAT_NINO:
+                  description: The format of the supplied NINO field is not valid.
+                  value: *ref_10
+                FORMAT_TAX_YEAR:
+                  description: The format of the supplied tax year field is not valid.
+                  value: *ref_11
+                FORMAT_PARTNERSHIP_UTR:
+                  description: The format of the supplied partnership UTR field is not valid.
+                  value: *ref_17
+                RULE_TAX_YEAR_RANGE_INVALID:
+                  description: Tax year range invalid. A tax year range of one year is required.
+                  value: *ref_12
+                RULE_TAX_YEAR_NOT_SUPPORTED:
+                  description: |
+                    The specified tax year is not supported. The tax year specified is before the minimum tax year value.
+                  value: *ref_13
+                RULE_OUTSIDE_AMENDMENT_WINDOW:
+                  description: The request cannot be completed as you are outside the amendment window.
+                  value: *ref_21
+                RULE_INCORRECT_GOV_TEST_SCENARIO:
+                  description: The request did not match any available Sandbox data. Check that the supplied Gov-Test-Scenario is correct for this endpoint version. This error will only be returned in the Sandbox environment.
+                  value: *ref_14
+        '403':
+          description: Forbidden
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: *ref_1
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: *ref_2
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: *ref_3
+              required: false
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_4
+                required: *ref_5
+              examples:
+                CLIENT_OR_AGENT_NOT_AUTHORISED:
+                  description: |
+                    The client or agent is not authorised. This is because: the client is not subscribed to MTD, 
+                    the agent is not subscribed to Agent Services, or the client has not authorised the agent to act on their behalf.
+                  value: *ref_15
+        '404':
+          description: Not Found
+          headers:
+            X-CorrelationId:
+              in: header
+              type: string
+              description: |
+                Unique ID for operation tracking
+                String, 36 characters.
+              schema: *ref_0
+              required: true
+            Deprecation:
+              name: Deprecation
+              in: header
+              description: |
+                The deprecation date/time for this endpoint.
+              schema: *ref_1
+              required: false
+            Sunset:
+              name: Sunset
+              in: header
+              description: |
+                The earliest date/time this endpoint will become unavailable after deprecation.
+              schema: *ref_2
+              required: false
+            Link:
+              name: Link
+              in: header
+              description: |
+                URL of the documentation for the API.
+              schema: *ref_3
+              required: false
+          content:
+            application/json:
+              schema:
+                description: Error Response
+                type: object
+                properties: *ref_4
+                required: *ref_5
+              examples:
+                MATCHING_RESOURCE_NOT_FOUND:
+                  description: The supplied income source could not be found.
+                  value: *ref_18
+components:
+  securitySchemes:
+    User-Restricted:
+      type: oauth2
+      description: HMRC supports OAuth 2.0 for authenticating [User-restricted](https://developer.service.hmrc.gov.uk/api-documentation/docs/authorisation/user-restricted-endpoints) API requests
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.service.hmrc.gov.uk/oauth/authorize
+          tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
+          refreshUrl: https://api.service.hmrc.gov.uk/oauth/refresh
+          scopes:
+            write:self-assessment: Grant write access
+            read:self-assessment: Grant read access
