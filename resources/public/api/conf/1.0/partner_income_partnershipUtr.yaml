@@ -1,0 +1,11 @@
+get:
+  $ref: "./retrieve_partner_income.yaml"
+  security:
+    - User-Restricted:
+        - read:self-assessment
+
+delete:
+  $ref: "./delete_partner_income.yaml"
+  security:
+    - User-Restricted:
+        - write:self-assessment

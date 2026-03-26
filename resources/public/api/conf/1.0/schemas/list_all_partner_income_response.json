@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "partnerIncomeSubmissions": {
+      "type": "array",
+      "description": "An array containing details of all partner income submissions.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "partnershipUtr": {
+            "description": "A Unique Taxpayer Reference (UTR) for the partnership. If you are a partner in a foreign partnership, you will not have a partnership reference, so submit your personal UTR.",
+            "type": "string",
+            "example": "4564564564",
+            "pattern": "^[0-9]{10}$"
+          },
+          "partnershipName": {
+            "description": "The name of the partnership.",
+            "type": "string",
+            "example": "ABC Partnership",
+            "pattern": "^.{1,105}$"
+          }
+        },
+        "required": [
+          "partnershipUtr",
+          "partnershipName"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "partnerIncomeSubmissions"
+  ],
+  "additionalProperties": false
+}

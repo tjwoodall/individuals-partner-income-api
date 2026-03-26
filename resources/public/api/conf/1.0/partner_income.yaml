@@ -1,0 +1,11 @@
+get:
+  $ref: "./list_all_partner_income.yaml"
+  security:
+    - User-Restricted:
+        - read:self-assessment
+
+put:
+  $ref: "./create_amend_partner_income.yaml"
+  security:
+    - User-Restricted:
+        - write:self-assessment
