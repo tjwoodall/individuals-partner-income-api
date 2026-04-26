@@ -1,4 +1,4 @@
-summary: List All Partner Income Submissions
+summary: List All Partner Income Submissions{{#maybeTestOnly "1.0 list-all-partner-income-submissions"}}{{/maybeTestOnly}}
 description: |
   This endpoint enables you to retrieve a list of all partner income submissions. A National Insurance number and tax year must be provided.
   

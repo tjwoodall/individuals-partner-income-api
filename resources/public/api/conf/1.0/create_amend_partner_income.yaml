@@ -1,4 +1,4 @@
-summary: Create or Amend Partner Income
+summary: Create or Amend Partner Income{{#maybeTestOnly "1.0 create-or-amend-partner-income"}}{{/maybeTestOnly}}
 description: |
   This endpoint enables you to create or amend partner income. A National Insurance number and tax year must be provided.
   
