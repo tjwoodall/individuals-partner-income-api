@@ -9,7 +9,7 @@
       "pattern": "^[0-9]{10}$"
     },
     "partnershipName": {
-      "description": "The name of the partnership.",
+      "description": "The name of the partnership. Must not be empty or contain only whitespace.",
       "type": "string",
       "example": "ABC Partnership",
       "pattern": "^.{1,105}$"
@@ -39,7 +39,7 @@
         "type": "object",
         "properties": {
           "tradeDescription": {
-            "description": "A description of the partnership trade or profession. This description must be unique for each trade reported. Validation is case-insensitive.",
+            "description": "A description of the partnership trade or profession. This description must be unique for each trade reported. Validation is case-insensitive.  Must not be empty or contain only whitespace.",
             "type": "string",
             "example": "Consultancy Services",
             "pattern": "^.{1,30}$"
