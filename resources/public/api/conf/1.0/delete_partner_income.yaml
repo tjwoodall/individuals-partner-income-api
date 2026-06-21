@@ -1,4 +1,4 @@
-summary: "Delete Partner Income [test only]"
+summary: Delete Partner Income
 description: |
   This endpoint enables you to delete partner income.
   A National Insurance number, tax year and partnership UTR must be provided.

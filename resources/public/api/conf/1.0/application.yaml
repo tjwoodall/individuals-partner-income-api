@@ -2,7 +2,7 @@ openapi: "3.0.3"
 
 info:
   version: "1.0"
-  title: "Individuals Partner Income (MTD) [test only]"
+  title: "Individuals Partner Income (MTD)"
   description: |
 
     The following endpoints are stateful in the Sandbox:
