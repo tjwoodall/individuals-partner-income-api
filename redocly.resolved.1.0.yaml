@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   version: '1.0'
-  title: Individuals Partner Income (MTD) [test only]
+  title: Individuals Partner Income (MTD)
   description: |
 
     The following endpoints are stateful in the Sandbox:
@@ -45,7 +45,7 @@ paths:
       security:
         - User-Restricted:
             - read:self-assessment
-      summary: List All Partner Income Submissions [test only]
+      summary: List All Partner Income Submissions
       description: |
         This endpoint enables you to retrieve a list of all partner income submissions. A National Insurance number and tax year must be provided.
 
@@ -343,7 +343,7 @@ paths:
       security:
         - User-Restricted:
             - write:self-assessment
-      summary: Create or Amend Partner Income [test only]
+      summary: Create or Amend Partner Income
       description: |
         This endpoint enables you to create or amend partner income. A National Insurance number and tax year must be provided.
 
@@ -1294,7 +1294,7 @@ paths:
       security:
         - User-Restricted:
             - read:self-assessment
-      summary: Retrieve Partner Income [test only]
+      summary: Retrieve Partner Income
       description: |
         This endpoint enables you to retrieve partner income.
         A National Insurance number, tax year and partnership UTR must be provided.
@@ -2229,7 +2229,7 @@ paths:
       security:
         - User-Restricted:
             - write:self-assessment
-      summary: Delete Partner Income [test only]
+      summary: Delete Partner Income
       description: |
         This endpoint enables you to delete partner income.
         A National Insurance number, tax year and partnership UTR must be provided.
