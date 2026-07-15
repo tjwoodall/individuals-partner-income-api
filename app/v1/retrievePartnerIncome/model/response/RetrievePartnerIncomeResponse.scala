@@ -17,8 +17,8 @@
 package v1.retrievePartnerIncome.model.response
 
 import api.models.domain.Timestamp
-import play.api.libs.json.*
 import play.api.libs.functional.syntax.*
+import play.api.libs.json.*
 import utils.JsonUtils
 
 case class RetrievePartnerIncomeResponse(
