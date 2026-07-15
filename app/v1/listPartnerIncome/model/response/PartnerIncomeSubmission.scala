@@ -16,8 +16,8 @@
 
 package v1.listPartnerIncome.model.response
 
-import play.api.libs.json.*
 import play.api.libs.functional.syntax.*
+import play.api.libs.json.*
 
 case class PartnerIncomeSubmission(partnershipUtr: String, partnershipName: String)
 

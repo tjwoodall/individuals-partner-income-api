@@ -16,8 +16,8 @@
 
 package v1.createAmendPartnerIncome.model.request
 
-import play.api.libs.json.*
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.json.*
 
 case class OffshoreFundsIncome(
     shareOfOffshoreFundsIncome: Option[BigDecimal],

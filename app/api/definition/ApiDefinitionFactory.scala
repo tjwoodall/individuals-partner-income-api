@@ -16,10 +16,10 @@
 
 package api.definition
 
-import cats.data.Validated.Invalid
 import api.config.AppConfig
 import api.routing.{Version, Version1}
 import api.utils.Logging
+import cats.data.Validated.Invalid
 
 import javax.inject.{Inject, Singleton}
 

@@ -16,8 +16,8 @@
 
 package api.connectors
 
+import api.config.{AppConfig, BasicAuthDownstreamConfig, ConfigFeatureSwitches}
 import com.google.common.base.Charsets
-import api.config.{BasicAuthDownstreamConfig, ConfigFeatureSwitches, AppConfig}
 
 import java.util.Base64
 import scala.concurrent.{ExecutionContext, Future}

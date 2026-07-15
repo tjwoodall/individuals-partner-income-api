@@ -16,12 +16,12 @@
 
 package v1.listPartnerIncome
 
-import cats.data.Validated
-import cats.implicits.catsSyntaxTuple2Semigroupal
 import api.controllers.validators.Validator
 import api.controllers.validators.resolvers.{ResolveDetailedTaxYear, ResolveNino}
 import api.models.domain.TaxYear
 import api.models.errors.MtdError
+import cats.data.Validated
+import cats.implicits.catsSyntaxTuple2Semigroupal
 import jakarta.inject.Inject
 import v1.listPartnerIncome.model.request.ListPartnerIncomeRequestData
 import v1.minimumTaxYear

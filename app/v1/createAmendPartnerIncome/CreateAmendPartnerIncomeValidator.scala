@@ -23,8 +23,8 @@ import api.models.errors.MtdError
 import cats.data.Validated
 import cats.implicits.catsSyntaxTuple3Semigroupal
 import play.api.libs.json.JsValue
-import v1.createAmendPartnerIncome.model.request.{CreateAmendPartnerIncomeRequestBody, CreateAmendPartnerIncomeRequestData}
 import v1.createAmendPartnerIncome.CreateAmendPartnerIncomeRulesValidator.validateBusinessRules
+import v1.createAmendPartnerIncome.model.request.{CreateAmendPartnerIncomeRequestBody, CreateAmendPartnerIncomeRequestData}
 import v1.minimumTaxYear
 
 import javax.inject.Inject
