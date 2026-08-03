@@ -23,7 +23,7 @@ import api.definition.APIStatus.{ALPHA, BETA}
 import api.mocks.MockHttpClient
 import api.routing.*
 import api.utils.UnitSpec
-
+import api.definition.APIAccessType.PUBLIC
 import scala.language.reflectiveCalls
 
 class ApiDefinitionFactorySpec extends UnitSpec {
@@ -34,6 +34,7 @@ class ApiDefinitionFactorySpec extends UnitSpec {
         MockedAppConfig.apiStatus(Version1) returns "BETA"
         MockedAppConfig.endpointsEnabled(Version1) returns true
         MockedAppConfig.deprecationFor(Version1).returns(NotDeprecated.valid).anyNumberOfTimes()
+        MockedAppConfig.controlledAccessEnabled returns false
 
         apiDefinitionFactory.definition shouldBe
           Definition(
@@ -46,6 +47,7 @@ class ApiDefinitionFactorySpec extends UnitSpec {
                 APIVersion(
                   version = Version1,
                   status = BETA,
+                  access = PUBLIC,
                   endpointsEnabled = true
                 )
               ),
@@ -90,6 +92,32 @@ class ApiDefinitionFactorySpec extends UnitSpec {
 
         val exceptionMessage: String = exception.getMessage
         exceptionMessage shouldBe "deprecatedOn date is required for a deprecated version"
+      }
+    }
+  }
+
+  "set the access level" when {
+    "the controlled access flag is enabled" should {
+      "to be CONTROLLED" in new Test {
+        MockedAppConfig.endpointsEnabled(Version1)
+        MockedAppConfig.apiStatus(Version1) returns "BETA"
+        MockedAppConfig.deprecationFor(Version1).returns(NotDeprecated.valid).anyNumberOfTimes()
+
+        MockedAppConfig.controlledAccessEnabled returns true
+
+        apiDefinitionFactory.definition.api.versions.head.access shouldBe APIAccessType.CONTROLLED
+      }
+    }
+
+    "the controlled access flag is disabled" should {
+      "return PUBLIC" in new Test {
+        MockedAppConfig.endpointsEnabled(Version1)
+        MockedAppConfig.apiStatus(Version1) returns "BETA"
+        MockedAppConfig.deprecationFor(Version1).returns(NotDeprecated.valid).anyNumberOfTimes()
+
+        MockedAppConfig.controlledAccessEnabled returns false
+
+        apiDefinitionFactory.definition.api.versions.head.access shouldBe APIAccessType.PUBLIC
       }
     }
   }

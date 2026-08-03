@@ -22,7 +22,7 @@ Start the service manager profile:
 sm2 --start MTDFB_INDIVIDUALS_PARTNER_INCOME
 ```
 
-## Run Tests
+## Running Tests
 
 Run unit tests: `sbt test`
 
